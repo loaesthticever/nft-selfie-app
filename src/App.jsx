@@ -67,7 +67,7 @@ export default function App() {
   // Share on Twitter
   const shareOnTwitter = () => {
     if (!selectedNft) return;
-    const msg = `i just got "${selectedNft.name}" on which nft are you? nft selfie cam 🔗 [paste your app link here]`;
+    const msg = `i just got "${selectedNft.name}" on which nft are you? nft selfie cam 🔗 https://nft-selfie-app.vercel.app/`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(msg)}`;
     window.open(twitterUrl, '_blank');
   };
