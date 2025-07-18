@@ -2,11 +2,14 @@ import React, { useRef, useState } from 'react';
 
 // 🟦 List your custom-named NFTs here (use lowercase for names):
 const NFT_IMAGES = [
-  { name: "cryptopunk", img: new URL('./nfts/punk.png', import.meta.url).href },
-  { name: "mystic axie", img: new URL('./nfts/mystic-axie.png', import.meta.url).href },
+  { name: "azuki", img: new URL('./nfts/azuki.png', import.meta.url).href },
   { name: "milady", img: new URL('./nfts/milady.png', import.meta.url).href },
-  { name: "pepe", img: new URL('./nfts/pepe.png', import.meta.url).href },
-  // ...add more!
+  { name: "moki", img: new URL('./nfts/moki.png', import.meta.url).href },
+  { name: "mystic axie", img: new URL('./nfts/mystic-axie.png', import.meta.url).href },
+  { name: "pudgy", img: new URL('./nfts/pudgy.png', import.meta.url).href },
+  { name: "ronke", img: new URL('./nfts/ronke.png', import.meta.url).href },
+  { name: "vitalik buterin", img: new URL('./nfts/vitalik-buterin.png', import.meta.url).href },
+  { name: "yapybara", img: new URL('./nfts/yapybara.png', import.meta.url).href },
 ];
 
 export default function App() {
