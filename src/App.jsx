@@ -77,14 +77,17 @@ export default function App() {
 
   return (
     <div
-      style={{
-        fontFamily: 'monospace',
-        background: '#f3f3f3',
-        minHeight: '100vh',
-        paddingTop: 40,
-        color: '#222',
-        margin: 0,
-      }}>
+    style={{
+      fontFamily: 'monospace',
+      background: '#f3f3f3',
+      minHeight: '100vh',
+      color: '#222',
+      margin: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column'
+    }}>
       <div
         style={{
           border: '2px solid #b4b4b4',
