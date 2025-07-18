@@ -133,43 +133,29 @@ export default function App() {
         <audio ref={audioRef} src="/roll.mp3" preload="auto" />
 
         {showCamera && (
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <video
-              ref={videoRef}
-              width="260"
-              height="200"
-              style={{
-                borderRadius: 6,
-                background: '#222',
-                border: '2px solid #bbb',
-                marginBottom: 18,
-              }}
-              autoPlay
-              playsInline
-              muted
-            />
-            <div style={{
-              position: 'absolute',
-              left: '50%',
-              top: '-45px',
-              transform: 'translateX(-50%)',
-              width: 90,
-              height: 90,
-              zIndex: 2,
-              pointerEvents: 'none',
-              transition: 'all 0.25s',
-            }}>
-              <img
-                src={NFT_IMAGES[currentRoll].img}
-                alt=""
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 10,
-                  background: '#fff',
-                  border: rolling ? '3px solid #222' : '2px solid #bbb',
-                  boxShadow: rolling ? '0 0 12px #eee' : 'none',
-                }}
+  <div style={{ position: 'relative', display: 'inline-block' }}>
+    <video … />
+    <div
+      style={{
+        position: 'absolute',
+        top: '-60px',          // pull further up above the video
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 100,
+        height: 100,
+        overflow: 'hidden',
+      }}
+    >
+      <img
+        src={NFT_IMAGES[currentRoll].img}
+        alt=""
+        style={{
+          width: '100%',
+          height: '100%',
+          transition: 'none', // instant swaps so you’ll see each frame
+        }}
+      />
+    </div
               />
             </div>
             {!rolling && (
