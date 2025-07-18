@@ -1,35 +1,24 @@
 import React, { useRef, useState } from 'react';
 
-// Your NFT pool: name + image URL (add more as needed)
-const NFT_POOL = [
-  {
-    name: 'Bored Ape Yacht Club',
-    img: 'https://i.imgur.com/YOUR_BAYC_IMAGE.png',
-    caption: 'You are pure bluechip energy.'
-  },
-  {
-    name: 'CryptoPunk',
-    img: 'https://i.imgur.com/YOUR_PUNK_IMAGE.png',
-    caption: 'Vintage JPEG. You were here before it was cool.'
-  },
-  {
-    name: 'Pepe NFT',
-    img: 'https://i.imgur.com/YOUR_PEPE_IMAGE.png',
-    caption: 'Meme royalty. Touch grass!'
-  },
-  // Add more NFT options here!
-];
+// Import images dynamically from nfts folder
+const nftCount = 5; // Change this to the number of images you have
+const NFT_IMAGES = Array.from({ length: nftCount }, (_, i) => ({
+  name: `NFT #${i + 1}`,
+  img: new URL(`./nfts/nft${i + 1}.png`, import.meta.url).href,
+}));
 
 export default function App() {
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [photo, setPhoto] = useState(null);
-  const [nft, setNft] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [rolling, setRolling] = useState(false);
+  const [selectedNft, setSelectedNft] = useState(null);
+  const [currentRoll, setCurrentRoll] = useState(0);
+  const audioRef = useRef(null);
 
   // Start camera
   const startCamera = async () => {
     setShowCamera(true);
+    setSelectedNft(null);
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       videoRef.current.srcObject = stream;
@@ -37,94 +26,115 @@ export default function App() {
     }
   };
 
-  // Take photo
-  const takePhoto = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, 300, 225);
-    const dataUrl = canvas.toDataURL();
-    setPhoto(dataUrl);
+  // Start rolling animation
+  const rollNft = () => {
+    setRolling(true);
+    setSelectedNft(null);
+    audioRef.current.currentTime = 0;
+    audioRef.current.play();
 
-    // Random NFT
-    const randomNFT = NFT_POOL[Math.floor(Math.random() * NFT_POOL.length)];
-    setNft(randomNFT);
+    let rollIdx = 0;
+    let interval = setInterval(() => {
+      setCurrentRoll(rollIdx % NFT_IMAGES.length);
+      rollIdx++;
+    }, 100);
 
-    // Stop camera
-    if (video.srcObject) {
-      video.srcObject.getTracks().forEach(track => track.stop());
-    }
-    setShowCamera(false);
+    setTimeout(() => {
+      clearInterval(interval);
+      audioRef.current.pause();
+      // Pick a winner
+      const winner = Math.floor(Math.random() * NFT_IMAGES.length);
+      setCurrentRoll(winner);
+      setSelectedNft(NFT_IMAGES[winner]);
+      setRolling(false);
+    }, 2000); // Roll for 2 seconds
   };
 
-  // Reset everything
+  // Reset
   const reset = () => {
-    setPhoto(null);
-    setNft(null);
-  };
-
-  // Twitter share link
-  const getTwitterLink = () => {
-    const text = encodeURIComponent(
-      `I just found out I'm a "${nft?.name}" NFT! 😂 Try it yourself: [your site link here]`
-    );
-    return `https://twitter.com/intent/tweet?text=${text}`;
+    setShowCamera(false);
+    setSelectedNft(null);
+    setCurrentRoll(0);
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+    }
   };
 
   return (
     <div style={{ fontFamily: 'sans-serif', textAlign: 'center', marginTop: 40 }}>
       <h1>Which NFT Are You?</h1>
-      {!photo && !showCamera && (
+      {!showCamera && (
         <button onClick={startCamera} style={{ fontSize: 20, padding: 12 }}>
           📸 Take a Selfie
         </button>
       )}
-      {showCamera && (
-        <div>
-          <video ref={videoRef} width="300" height="225" style={{ borderRadius: 12 }} autoPlay />
-          <br />
-          <button onClick={takePhoto} style={{ fontSize: 20, padding: 12, marginTop: 8 }}>
-            Snap!
-          </button>
-        </div>
-      )}
-      <canvas ref={canvasRef} width="300" height="225" style={{ display: 'none' }} />
 
-      {photo && nft && (
-        <div style={{ marginTop: 30 }}>
-          <img src={photo} alt="Your selfie" width="200" style={{ borderRadius: 12 }} />
-          <div style={{ margin: '20px 0' }}>
-            <strong style={{ fontSize: 22 }}>{nft.name}</strong>
-            <br />
-            <img src={nft.img} alt={nft.name} width="120" style={{ borderRadius: 10, margin: '12px 0' }} />
-            <div style={{ fontSize: 16, color: '#888', margin: '10px 0' }}>{nft.caption}</div>
+      <audio ref={audioRef} src="./roll.mp3" preload="auto" />
+
+      {showCamera && (
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <video
+            ref={videoRef}
+            width="320"
+            height="240"
+            style={{ borderRadius: 12, background: '#111' }}
+            autoPlay
+            playsInline
+            muted
+          />
+          {/* NFT Rolling animation */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: '20px',
+            transform: 'translateX(-50%)',
+            width: 120,
+            height: 120,
+            zIndex: 2,
+            pointerEvents: 'none',
+            transition: 'all 0.25s',
+          }}>
+            <img
+              src={NFT_IMAGES[currentRoll].img}
+              alt=""
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 20,
+                boxShadow: rolling ? '0 0 20px #f0f' : '0 0 10px #aaa',
+                border: rolling ? '4px solid #f0f' : '3px solid #222',
+                background: '#fff',
+                transition: 'all 0.15s',
+              }}
+            />
           </div>
-          <a
-            href={getTwitterLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              background: '#1da1f2', color: 'white', padding: '10px 22px', borderRadius: 8, textDecoration: 'none',
-              fontSize: 17, marginRight: 12
-            }}
-          >
-            Share on Twitter
-          </a>
-          <a
-            href="https://twitter.com/YOUR_TWITTER_HANDLE"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              background: '#eee', color: '#111', padding: '10px 22px', borderRadius: 8, textDecoration: 'none',
-              fontSize: 17, marginRight: 12
-            }}
-          >
-            Follow me
-          </a>
-          <button onClick={reset} style={{ fontSize: 16, marginLeft: 8, marginTop: 8 }}>Try Again</button>
-          <div style={{ marginTop: 18, fontSize: 15, color: '#888' }}>
-            Donate: <span style={{ fontFamily: 'monospace' }}>0xYourWalletAddressHere</span>
-          </div>
+          {!rolling && (
+            <button
+              onClick={rollNft}
+              style={{
+                fontSize: 20,
+                padding: 12,
+                marginTop: 14,
+                marginBottom: 10,
+                position: 'absolute',
+                left: '50%',
+                bottom: '-55px',
+                transform: 'translateX(-50%)'
+              }}
+              disabled={rolling}
+            >
+              🎰 Roll NFT!
+            </button>
+          )}
+          {selectedNft && (
+            <div style={{ marginTop: 160 }}>
+              <strong style={{ fontSize: 22 }}>{selectedNft.name}</strong>
+              <div style={{ margin: '18px 0' }}>
+                <img src={selectedNft.img} alt={selectedNft.name} width="120" style={{ borderRadius: 16 }} />
+              </div>
+              <button onClick={reset} style={{ fontSize: 16, marginTop: 8 }}>Try Again</button>
+            </div>
+          )}
         </div>
       )}
     </div>
